@@ -1,12 +1,5 @@
 <template>
-  <Login
-    v-if="!isLogin"
-    class="mt-4 h-100 text-center d-flex flex-column align-items-center justify-content-center"
-  />
-  <div
-    v-if="isLogin"
-    class="container"
-  >
+  <div class="container">
     <table class="table mt-4">
       <thead>
         <tr>
@@ -60,11 +53,10 @@
 </template>
 
 <script>
-import Login from '@/components/Login.vue';
-import { admin, test } from '@/services';
+import { admin } from '@/services';
+import router from '@/router';
 
 export default {
-  components: { Login },
   data() {
     return {
       isLogin: this.$store.state.isLogin,
@@ -74,11 +66,11 @@ export default {
   mounted() {
     if (this.isLogin) {
       admin.getProducts().then((res) => {
-        this.products = res.data;
+        this.products = res.data.products;
       });
+    } else {
+      router.push('/login');
     }
-    admin.test();
-    test.getTest();
   },
   methods: {},
 };

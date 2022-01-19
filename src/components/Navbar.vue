@@ -61,6 +61,22 @@
           </li>
         </ul>
       </div>
+      <router-link
+        v-if="!isLogin"
+        to="/login"
+        type="button"
+        class="btn btn-primary"
+      >
+        登入
+      </router-link>
+      <button
+        v-if="isLogin"
+        type="button"
+        class="btn btn-outline-primary"
+        @click="logout"
+      >
+        登出
+      </button>
     </div>
   </nav>
 </template>
@@ -71,6 +87,19 @@ export default {
     return {
       logoSize: 25,
     };
+  },
+  computed: {
+    isLogin() {
+      return this.$store.state.isLogin;
+    },
+  },
+  mounted() {
+  },
+  methods: {
+    logout() {
+      this.$store.dispatch('logout');
+      this.$router.go();
+    },
   },
 };
 </script>
