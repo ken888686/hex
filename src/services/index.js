@@ -1,17 +1,25 @@
 import axios from 'axios';
+import store from '@/store';
 
 const url = 'https://vue3-course-api.hexschool.io';
 const apiPath = 'ken888686';
 
+/**
+ * 登入及驗證
+ */
 const admin = {
+  /**
+   * 登入
+   * @param {string} account 帳號
+   * @param {string} password 密碼
+   * @returns
+   */
   login(account, password) {
     return new Promise((resolve, reject) => {
       axios
-        .post(`${url}/v2/api/signin`, {
-          data: {
-            username: account,
-            password,
-          },
+        .post(`${url}/v2/admin/signin`, {
+          username: account,
+          password,
         })
         .then((res) => {
           resolve(res);
@@ -21,12 +29,17 @@ const admin = {
         });
     });
   },
+
+  /**
+   * 取得產品
+   * @returns Promise
+   */
   getProducts() {
     return new Promise((resolve, reject) => {
       axios
         .get(`${url}/v2/api/${apiPath}/admin/products`, {
           headers: {
-            authorization: this.$store.state.apiKey,
+            authorization: store.state.token,
           },
         })
         .then((res) => {
@@ -37,15 +50,24 @@ const admin = {
         });
     });
   },
-  test() {
-    console.log(this.$store);
+};
+
+/**
+ * 客戶購物 - 產品
+ */
+const products = {
+  getProducts() {
+    return new Promise((resolve, reject) => {
+      axios
+        .get(`${url}/v2/api/${apiPath}/products`)
+        .then((res) => {
+          resolve(res);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
   },
 };
 
-const test = {
-  getTest: () => {
-    console.log('Hi');
-  },
-};
-
-export { admin, test };
+export { admin, products };

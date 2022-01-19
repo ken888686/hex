@@ -1,10 +1,14 @@
 import { createStore } from 'vuex';
+import persistedState from 'vuex-persistedstate';
 
 const store = createStore({
+  plugins: [
+    persistedState({ storage: window.localStorage }),
+  ],
   state() {
     return {
       isLogin: false,
-      apiKey: 'xxx',
+      token: 'ready-to-generate',
     };
   },
   mutations: {
@@ -14,8 +18,17 @@ const store = createStore({
     logout(state) {
       state.isLogin = false;
     },
-    updateApiKey(state, apiKey) {
-      state.apiKey = apiKey;
+    updateToken(state, token) {
+      state.token = token;
+    },
+  },
+  actions: {
+    login({ commit }, token) {
+      commit('login');
+      commit('updateToken', token);
+    },
+    logout({ commit }) {
+      commit('logout');
     },
   },
 });

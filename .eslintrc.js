@@ -17,6 +17,7 @@ module.exports = {
   rules: {
     // 'prettier/prettier': 'error',
     'prefer-destructuring': 'off',
+    'max-len': 'off',
     'import/no-unresolved': 'off',
     'import/extensions': 'off',
     'import/no-absolute-path': 'off',
