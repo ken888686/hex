@@ -11,26 +11,14 @@ module.exports = {
   parserOptions: {
     ecmaVersion: 12,
   },
-  extends: [
-    'plugin:vue/vue3-recommended',
-    'airbnb-base',
-    'plugin:prettier/recommended',
-  ],
+  extends: ['plugin:vue/vue3-recommended', 'airbnb-base', 'plugin:prettier/recommended'],
   plugins: ['prettier'],
   rules: {
     'prettier/prettier': 'error',
-    'import/no-extraneous-dependencies': [
-      'error',
-      {
-        devDependencies: true,
-      },
-    ],
-  },
-  settings: {
-    'import/resolver': {
-      webpack: {
-        config: path.join(__dirname,'./vite.config.js'),
-      },
-    },
+    'import/no-unresolved': 'off',
+    'import/extensions': 'off',
+    'import/no-absolute-path': 'off',
+    'import/no-extraneous-dependencies': 'off',
+    'vue/multi-word-component-names': ['warn'],
   },
 };
