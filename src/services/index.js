@@ -12,7 +12,7 @@ const admin = {
    * 登入
    * @param {string} account 帳號
    * @param {string} password 密碼
-   * @returns
+   * @returns Promise
    */
   login(account, password) {
     return new Promise((resolve, reject) => {
@@ -30,6 +30,31 @@ const admin = {
     });
   },
 
+  /**
+   * 登出
+   * @returns Promise
+   */
+  logout() {
+    return new Promise((resolve, reject) => {
+      axios
+        .post(`${url}/v2/logout`, {}, {
+          headers: {
+            authorization: store.state.token,
+          },
+        })
+        .then((res) => {
+          resolve(res);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  },
+
+  /**
+   * 驗證是否登入成功
+   * @returns Promise
+   */
   check() {
     return new Promise((resolve, reject) => {
       axios
@@ -46,6 +71,7 @@ const admin = {
         });
     });
   },
+
   /**
    * 取得產品
    * @returns Promise
