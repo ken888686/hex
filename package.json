@@ -1,6 +1,6 @@
 {
-  "name": "vite-vue3-app",
-  "version": "0.0.1",
+  "name": "hex",
+  "version": "0.2.0",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

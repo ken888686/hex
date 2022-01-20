@@ -24,7 +24,7 @@ const routes = [
 ];
 
 const router = createRouter({
-  history: createWebHistory('/vite-vue3-app/'),
+  history: createWebHistory('/hex/'),
   linkActiveClass: 'active',
   routes,
 });
