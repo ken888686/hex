@@ -55,22 +55,38 @@
 <script>
 import { admin } from '@/services';
 import router from '@/router';
+import store from '@/store';
 
 export default {
   data() {
     return {
-      isLogin: this.$store.state.isLogin,
+      isLogin: store.state.isLogin,
       products: [],
     };
   },
   mounted() {
-    if (this.isLogin) {
-      admin.getProducts().then((res) => {
-        this.products = res.data.products;
-      });
-    } else {
+    if (!store.state.isLogin) {
       router.push('/login');
+      return;
     }
+
+    admin.check()
+      .then((res) => {
+        const data = res.data;
+        if (data.success) {
+          return admin.getProducts();
+        }
+        return res;
+      }).then((res) => {
+        const data = res.data;
+        this.products = data.products;
+      })
+      .catch((err) => {
+        if (err.response.status === 401) {
+          alert(err.response.data.message);
+          router.push('/login');
+        }
+      });
   },
   methods: {},
 };

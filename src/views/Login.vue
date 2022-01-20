@@ -53,13 +53,15 @@
 <script>
 import { mapActions } from 'vuex';
 import router from '@/router';
+import store from '@/store';
+
 import { admin } from '@/services';
 
 export default {
   data() {
     return {
-      account: 'ken888686@gmail.com',
-      password: 'Oi521760',
+      account: '',
+      password: '',
       disabled: false,
     };
   },
@@ -68,7 +70,6 @@ export default {
   methods: {
     ...mapActions([
       'login',
-      'test',
     ]),
     test() {
       router.push('/week-1');
@@ -79,7 +80,7 @@ export default {
       const password = this.password;
 
       admin.login(account, password).then((res) => {
-        this.$store.dispatch('login', res.data.token);
+        store.dispatch('login', res.data.token);
         router.push('/week-2');
       }).catch((err) => {
         this.disabled = false;
