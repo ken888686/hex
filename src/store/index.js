@@ -29,6 +29,7 @@ const store = createStore({
     },
     logout({ commit }) {
       commit('logout');
+      commit('updateToken', '');
     },
   },
 });

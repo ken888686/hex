@@ -30,6 +30,23 @@ const admin = {
     });
   },
 
+  check() {
+    return new Promise((resolve, reject) => {
+      axios
+        .post(`${url}/v2/api/user/check`, {}, {
+          headers: {
+            authorization: store.state.token,
+          },
+        })
+        .then((res) => {
+          resolve(res);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  },
+
   /**
    * 取得產品
    * @returns Promise
