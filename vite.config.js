@@ -4,7 +4,7 @@ import path from 'path';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: '/vite-vue3-app/',
+  base: '/hex/',
   plugins: [vue()],
   resolve: {
     alias: {
