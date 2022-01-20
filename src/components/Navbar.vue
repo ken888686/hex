@@ -81,6 +81,8 @@
   </nav>
 </template>
 <script>
+import { admin } from '@/services';
+
 export default {
   name: 'Navbar',
   data() {
@@ -97,8 +99,14 @@ export default {
   },
   methods: {
     logout() {
-      this.$store.dispatch('logout');
-      this.$router.go();
+      admin.logout().then((res) => {
+        alert(res.data.message);
+        this.$store.dispatch('logout');
+        this.$router.go();
+      }).catch((err) => {
+        alert(err.response.data.message);
+        console.dir(err);
+      });
     },
   },
 };
