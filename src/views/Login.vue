@@ -71,6 +71,9 @@ export default {
     ...mapActions([
       'login',
     ]),
+    test() {
+      router.push('/week-1');
+    },
     login() {
       this.disabled = true;
       const account = this.account;
