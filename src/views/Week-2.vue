@@ -82,10 +82,9 @@ export default {
         this.products = data.products;
       })
       .catch((err) => {
-        if (err.response.status === 401) {
-          alert(err.response.data.message);
-          router.push('/login');
-        }
+        alert(err.response.data.message);
+        store.commit('logout');
+        router.push('/login');
       });
   },
   methods: {},
