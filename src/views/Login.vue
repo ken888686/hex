@@ -36,7 +36,7 @@
           </div>
           <button
             class="btn btn-lg btn-primary w-100 mt-3"
-            type="button"
+            type="submit"
             :disabled="disabled"
             @click="login"
           >
