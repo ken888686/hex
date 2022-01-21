@@ -84,7 +84,7 @@ export default {
         router.push('/week-2');
       }).catch((err) => {
         this.disabled = false;
-        console.error(err);
+        alert(err.response.data.message);
       });
     },
   },
