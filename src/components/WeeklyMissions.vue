@@ -16,5 +16,11 @@
     >
       第二週作業
     </router-link>
+    <router-link
+      to="/week-3"
+      class="btn btn-outline-primary"
+    >
+      第三週作業
+    </router-link>
   </div>
 </template>

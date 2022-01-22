@@ -57,6 +57,14 @@
                   Week 2
                 </router-link>
               </li>
+              <li>
+                <router-link
+                  class="dropdown-item"
+                  to="/week-3"
+                >
+                  Week 3
+                </router-link>
+              </li>
             </ul>
           </li>
         </ul>
