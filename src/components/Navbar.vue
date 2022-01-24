@@ -89,7 +89,7 @@
   </nav>
 </template>
 <script>
-import { admin } from '@/services';
+import { auth } from '@/services';
 
 export default {
   name: 'Navbar',
@@ -107,7 +107,7 @@ export default {
   },
   methods: {
     logout() {
-      admin.logout().then((res) => {
+      auth.logout().then((res) => {
         alert(res.data.message);
         this.$store.dispatch('logout');
         this.$router.go();

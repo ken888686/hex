@@ -53,7 +53,7 @@
 </template>
 
 <script>
-import { admin } from '@/services';
+import { auth, admin } from '@/services';
 import router from '@/router';
 import store from '@/store';
 
@@ -70,7 +70,7 @@ export default {
       return;
     }
 
-    admin.check()
+    auth.check()
       .then((res) => {
         const data = res.data;
         if (data.success) {

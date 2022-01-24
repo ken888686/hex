@@ -3,11 +3,17 @@ import store from '@/store';
 
 const url = 'https://vue3-course-api.hexschool.io';
 const apiPath = 'ken888686';
+const config = {
+  headers:
+  {
+    authorization: store.state.token,
+  },
+};
 
 /**
  * 登入及驗證
  */
-const admin = {
+const auth = {
   /**
    * 登入
    * @param {string} account 帳號
@@ -37,11 +43,7 @@ const admin = {
   logout() {
     return new Promise((resolve, reject) => {
       axios
-        .post(`${url}/v2/logout`, {}, {
-          headers: {
-            authorization: store.state.token,
-          },
-        })
+        .post(`${url}/v2/logout`, {}, config)
         .then((res) => {
           resolve(res);
         })
@@ -58,32 +60,7 @@ const admin = {
   check() {
     return new Promise((resolve, reject) => {
       axios
-        .post(`${url}/v2/api/user/check`, {}, {
-          headers: {
-            authorization: store.state.token,
-          },
-        })
-        .then((res) => {
-          resolve(res);
-        })
-        .catch((err) => {
-          reject(err);
-        });
-    });
-  },
-
-  /**
-   * 取得產品
-   * @returns Promise
-   */
-  getProducts() {
-    return new Promise((resolve, reject) => {
-      axios
-        .get(`${url}/v2/api/${apiPath}/admin/products`, {
-          headers: {
-            authorization: store.state.token,
-          },
-        })
+        .post(`${url}/v2/api/user/check`, {}, config)
         .then((res) => {
           resolve(res);
         })
@@ -95,9 +72,88 @@ const admin = {
 };
 
 /**
- * 客戶購物 - 產品
+ * 管理控制台
  */
-const products = {
+const admin = {
+  /**
+   * 取得產品
+   * @param {number} page 頁數
+   * @param {string} category 分類
+   * @returns Promise
+   */
+  getProducts(page = 1, category = '') {
+    return new Promise((resolve, reject) => {
+      axios
+        .get(`${url}/v2/api/${apiPath}/admin/products?page=${page}&category=${category}`, config)
+        .then((res) => {
+          resolve(res);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  },
+
+  /**
+   * 新增產品
+   * @param {any} data 產品資訊
+   * @returns Promise
+   */
+  addProduct(data) {
+    return new Promise((resolve, reject) => {
+      axios
+        .post(`${url}/v2/api/${apiPath}`, data, config)
+        .then((res) => {
+          resolve(res);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  },
+
+  /**
+   * 刪除產品
+   * @param {string} id 產品id
+   * @returns Promise
+   */
+  deleteProduct(id) {
+    return new Promise((resolve, reject) => {
+      axios
+        .delete(`${url}/v2/api/${apiPath}/admin/product/${id}`, config)
+        .then((res) => {
+          resolve(res);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  },
+
+  /**
+   * 編輯產品
+   * @param {string} id 產品id
+   * @param {object}} data 產品資訊
+   * @returns Promise
+   */
+  editProduct(id, data) {
+    return new Promise((resolve, reject) => {
+      axios
+        .put(`${url}/v2/api/${apiPath}/admin/product/${id}`, data, config)
+        .then((res) => {
+          resolve(res);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  },
+};
+
+/**
+ * 客戶購物
+ */
+const customer = {
   getProducts() {
     return new Promise((resolve, reject) => {
       axios
@@ -112,4 +168,4 @@ const products = {
   },
 };
 
-export { admin, products };
+export { auth, admin, customer };
