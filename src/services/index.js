@@ -28,6 +28,7 @@ const auth = {
           password,
         })
         .then((res) => {
+          config.headers.authorization = res.data.token;
           resolve(res);
         })
         .catch((err) => {

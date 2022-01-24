@@ -90,6 +90,8 @@
 </template>
 <script>
 import { auth } from '@/services';
+import store from '@/store';
+import router from '@/router';
 
 export default {
   name: 'Navbar',
@@ -100,7 +102,7 @@ export default {
   },
   computed: {
     isLogin() {
-      return this.$store.state.isLogin;
+      return store.state.isLogin;
     },
   },
   mounted() {
@@ -109,8 +111,8 @@ export default {
     logout() {
       auth.logout().then((res) => {
         alert(res.data.message);
-        this.$store.dispatch('logout');
-        this.$router.go();
+        store.dispatch('logout');
+        router.push('/');
       }).catch((err) => {
         alert(err.response.data.message);
         console.dir(err);
