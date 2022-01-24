@@ -81,6 +81,7 @@
         v-if="isLogin"
         type="button"
         class="btn btn-outline-primary"
+        :disabled="isProcessing"
         @click="logout"
       >
         登出
@@ -98,6 +99,7 @@ export default {
   data() {
     return {
       logoSize: 25,
+      isProcessing: false,
     };
   },
   computed: {
@@ -109,14 +111,21 @@ export default {
   },
   methods: {
     logout() {
-      auth.logout().then((res) => {
-        alert(res.data.message);
-        store.dispatch('logout');
-        router.push('/');
-      }).catch((err) => {
-        alert(err.response.data.message);
-        console.dir(err);
-      });
+      this.isProcessing = true;
+      auth
+        .logout()
+        .then((res) => {
+          alert(res.data.message);
+          store.dispatch('logout');
+          router.push('/');
+        })
+        .catch((err) => {
+          alert(err.response.data.message);
+          console.dir(err);
+        })
+        .finally(() => {
+          this.isProcessing = false;
+        });
     },
   },
 };

@@ -291,13 +291,26 @@
     </div>
   </div>
   <!-- Modal -->
+  <input
+    id=""
+    v-model="text"
+    type="text"
+    name=""
+  >
 </template>
 <script>
+import { debounce } from 'lodash';
+
 export default {
   data() {
     return {
-      title: 'Week 3',
+      text: 'Week 3',
     };
+  },
+  watch: {
+    text: debounce((text) => {
+      console.log(text);
+    }, 1000),
   },
 };
 </script>
