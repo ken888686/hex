@@ -8,6 +8,7 @@
         <form
           id="form"
           class="form-sign"
+          @submit.prevent="login"
         >
           <div class="form-floating mb-3">
             <input
@@ -38,7 +39,6 @@
             class="btn btn-lg btn-primary w-100 mt-3"
             type="submit"
             :disabled="disabled"
-            @click="login"
           >
             登入
           </button>
