@@ -302,7 +302,9 @@
 </template>
 <script>
 import { debounce } from 'lodash';
-import { admin } from '@/services';
+import { auth, admin } from '@/services';
+import router from '@/router';
+import store from '@/store';
 
 export default {
   data() {
@@ -317,15 +319,29 @@ export default {
     }, 1000),
   },
   mounted() {
-    admin
-      .getProducts()
+    if (!store.state.isLogin) {
+      router.push('/login');
+      return;
+    }
+
+    auth
+      .check()
+      .then((res) => {
+        const data = res.data;
+        if (data.success) {
+          return admin.getProducts();
+        }
+        return res;
+      })
       .then((res) => {
         const data = res.data;
         this.products = data.products;
         this.pagination = data.pagination;
       })
       .catch((err) => {
-        console.dir(err);
+        alert(err.response.data.message);
+        store.commit('logout');
+        router.push('/login');
       });
   },
 };
