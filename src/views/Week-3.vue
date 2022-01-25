@@ -55,6 +55,9 @@
               <button
                 type="button"
                 class="btn btn-outline-danger btn-sm"
+                data-bs-toggle="modal"
+                data-bs-target="#delProductModal"
+                @click="setProductId(item.id)"
               >
                 刪除
               </button>
@@ -277,8 +280,10 @@
           />
         </div>
         <div class="modal-body">
-          是否刪除
-          <strong class="text-danger" /> 商品(刪除後將無法恢復)。
+          是否刪除？
+          <strong class="text-danger">
+            商品(刪除後將無法恢復)。
+          </strong>
         </div>
         <div class="modal-footer">
           <button
@@ -291,6 +296,7 @@
           <button
             type="button"
             class="btn btn-danger"
+            @click="deleteProduct"
           >
             確認刪除
           </button>
@@ -311,6 +317,7 @@ export default {
     return {
       products: [],
       pagination: {},
+      selectedProductId: '',
     };
   },
   watch: {
@@ -343,6 +350,26 @@ export default {
         store.commit('logout');
         router.push('/login');
       });
+  },
+  methods: {
+    setProductId(id) {
+      this.selectedProductId = id;
+    },
+    deleteProduct() {
+      console.log(this.selectedProductId);
+      // admin
+      //   .deleteProduct(id)
+      //   .then((res) => {
+      //     const data = res.data;
+      //     this.products = data.products;
+      //     this.pagination = data.pagination;
+      //   })
+      //   .catch((err) => {
+      //     alert(err.response.data.message);
+      //     store.commit('logout');
+      //     router.push('/login');
+      //   });
+    },
   },
 };
 </script>
