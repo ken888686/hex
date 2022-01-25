@@ -27,14 +27,22 @@
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <td />
-          <td />
-          <td class="text-end" />
-          <td class="text-end" />
+        <tr
+          v-for="item in products"
+          :key="item.id"
+        >
+          <td>{{ item.category }}</td>
+          <td>{{ item.title }}</td>
           <td>
-            <span class="text-success">啟用</span>
-            <span>未啟用</span>
+            {{ item.origin_price }}
+          </td>
+          <td>
+            {{ item.price }}
+          </td>
+          <td>
+            <span :class="[item.is_enabled ? 'text-success' : 'text-secondary']">
+              {{ item.is_enabled ? '啟用' : '未啟用' }}
+            </span>
           </td>
           <td>
             <div class="btn-group">
@@ -291,26 +299,34 @@
     </div>
   </div>
   <!-- Modal -->
-  <input
-    id=""
-    v-model="text"
-    type="text"
-    name=""
-  >
 </template>
 <script>
 import { debounce } from 'lodash';
+import { admin } from '@/services';
 
 export default {
   data() {
     return {
-      text: 'Week 3',
+      products: [],
+      pagination: {},
     };
   },
   watch: {
     text: debounce((text) => {
       console.log(text);
     }, 1000),
+  },
+  mounted() {
+    admin
+      .getProducts()
+      .then((res) => {
+        const data = res.data;
+        this.products = data.products;
+        this.pagination = data.pagination;
+      })
+      .catch((err) => {
+        console.dir(err);
+      });
   },
 };
 </script>

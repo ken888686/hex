@@ -13,9 +13,7 @@ module.exports = {
     ecmaVersion: 12,
   },
   extends: ['plugin:vue/vue3-recommended', 'airbnb-base'],
-  // plugins: ['prettier'],
   rules: {
-    // 'prettier/prettier': 'error',
     'prefer-destructuring': 'off',
     'max-len': 'off',
     'import/no-unresolved': 'off',
@@ -23,13 +21,13 @@ module.exports = {
     'import/no-absolute-path': 'off',
     'import/no-extraneous-dependencies': 'off',
     'no-param-reassign': [
-      'error', {
+      'error',
+      {
         props: true,
-        ignorePropertyModificationsFor: [
-          'state',
-        ],
+        ignorePropertyModificationsFor: ['state'],
       },
     ],
     'vue/multi-word-component-names': 'off',
+    'vue/order-in-components': 'error',
   },
 };
