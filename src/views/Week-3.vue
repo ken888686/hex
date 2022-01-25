@@ -1,7 +1,11 @@
 <template>
   <div class="container">
     <div class="text-end mt-4">
-      <button class="btn btn-primary">
+      <button
+        class="btn btn-primary"
+        :disabled="isLoading"
+        @click="test"
+      >
         建立新的產品
       </button>
     </div>
@@ -55,8 +59,6 @@
               <button
                 type="button"
                 class="btn btn-outline-danger btn-sm"
-                data-bs-toggle="modal"
-                data-bs-target="#delProductModal"
                 @click="setProductId(item.id)"
               >
                 刪除
@@ -100,28 +102,51 @@
                   <label
                     for="imageUrl"
                     class="form-label"
-                  >輸入圖片網址</label>
+                  >輸入主圖網址</label>
                   <input
+                    v-model="imageUrl"
                     type="text"
                     class="form-control"
-                    placeholder="請輸入圖片連結"
+                    placeholder="輸入主圖網址"
+                  >
+                  <img
+                    v-if="product.imageUrl!==''"
+                    class="img-fluid mt-1"
+                    :src="product.imageUrl"
+                    alt="primary pic"
                   >
                 </div>
-                <img
-                  class="img-fluid"
-                  src=""
-                  alt=""
+                <div
+                  v-if="product.imageUrl!==''"
+                  class="mb-3"
                 >
-              </div>
-              <div v-if="true">
-                <button class="btn btn-outline-primary btn-sm d-block w-100">
-                  新增圖片
-                </button>
-              </div>
-              <div v-else>
-                <button class="btn btn-outline-danger btn-sm d-block w-100">
-                  刪除圖片
-                </button>
+                  <hr>
+                  <label
+                    for="imageUrl"
+                    class="form-label"
+                  >輸入其他圖片網址</label>
+                  <input
+                    v-model="product.imageUrl"
+                    type="text"
+                    class="form-control"
+                    placeholder="輸入其他圖片網址"
+                  >
+                  <img
+                    class="img-fluid"
+                    src=""
+                    alt=""
+                  >
+                  <div v-if="product.imagesUrl.length<=0">
+                    <button class="btn btn-outline-primary btn-sm d-block w-100">
+                      新增圖片
+                    </button>
+                  </div>
+                  <div v-else>
+                    <button class="btn btn-outline-danger btn-sm d-block w-100">
+                      刪除圖片
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
             <div class="col-sm-8">
@@ -132,6 +157,7 @@
                 >標題</label>
                 <input
                   id="title"
+                  v-model="product.title"
                   type="text"
                   class="form-control"
                   placeholder="請輸入標題"
@@ -146,6 +172,7 @@
                   >分類</label>
                   <input
                     id="category"
+                    v-model="product.category"
                     type="text"
                     class="form-control"
                     placeholder="請輸入分類"
@@ -158,6 +185,7 @@
                   >單位</label>
                   <input
                     id="unit"
+                    v-model="product.unit"
                     type="text"
                     class="form-control"
                     placeholder="請輸入單位"
@@ -173,6 +201,7 @@
                   >原價</label>
                   <input
                     id="origin_price"
+                    v-model="product.origin_price"
                     type="number"
                     min="0"
                     class="form-control"
@@ -186,6 +215,7 @@
                   >售價</label>
                   <input
                     id="price"
+                    v-model="product.price"
                     type="number"
                     min="0"
                     class="form-control"
@@ -202,6 +232,7 @@
                 >產品描述</label>
                 <textarea
                   id="description"
+                  v-model="product.description"
                   type="text"
                   class="form-control"
                   placeholder="請輸入產品描述"
@@ -214,6 +245,7 @@
                 >說明內容</label>
                 <textarea
                   id="description"
+                  v-model="product.content"
                   type="text"
                   class="form-control"
                   placeholder="請輸入說明內容"
@@ -225,8 +257,7 @@
                     id="is_enabled"
                     class="form-check-input"
                     type="checkbox"
-                    :true-value="1"
-                    :false-value="0"
+                    :checked="product.is_enabled"
                   >
                   <label
                     class="form-check-label"
@@ -248,6 +279,8 @@
           <button
             type="button"
             class="btn btn-primary"
+            data-bs-dismiss="modal"
+            @click="addProduct"
           >
             確認
           </button>
@@ -308,6 +341,7 @@
 </template>
 <script>
 import { debounce } from 'lodash';
+import { Modal } from 'bootstrap';
 import { auth, admin } from '@/services';
 import router from '@/router';
 import store from '@/store';
@@ -315,15 +349,33 @@ import store from '@/store';
 export default {
   data() {
     return {
+      product: {
+        category: '',
+        content: '',
+        description: '',
+        id: '',
+        imageUrl: '',
+        imagesUrl: [],
+        is_enabled: 0,
+        origin_price: 0,
+        price: 0,
+        title: '',
+        unit: '',
+        num: 1,
+      },
       products: [],
       pagination: {},
       selectedProductId: '',
+      imageUrl: '',
+      isLoading: true,
+      productModal: null,
+      delProductModal: null,
     };
   },
   watch: {
-    text: debounce((text) => {
-      console.log(text);
-    }, 1000),
+    imageUrl: debounce(function (imageUrl) {
+      this.product.imageUrl = imageUrl;
+    }, 2000),
   },
   mounted() {
     if (!store.state.isLogin) {
@@ -331,19 +383,23 @@ export default {
       return;
     }
 
+    this.productModal = new Modal(document.getElementById('productModal'), {
+      keyboard: false,
+      backdrop: 'static',
+    });
+
+    this.delProductModal = new Modal(document.getElementById('delProductModal'), {
+      keyboard: false,
+      backdrop: 'static',
+    });
+
     auth
       .check()
       .then((res) => {
         const data = res.data;
         if (data.success) {
-          return admin.getProducts();
+          this.getProducts();
         }
-        return res;
-      })
-      .then((res) => {
-        const data = res.data;
-        this.products = data.products;
-        this.pagination = data.pagination;
       })
       .catch((err) => {
         alert(err.response.data.message);
@@ -352,23 +408,58 @@ export default {
       });
   },
   methods: {
+    test() {
+      this.productModal.show();
+    },
     setProductId(id) {
       this.selectedProductId = id;
     },
+    getProducts() {
+      this.isLoading = true;
+      admin
+        .getProducts()
+        .then((res) => {
+          const data = res.data;
+          this.products = data.products;
+          this.pagination = data.pagination;
+          this.isLoading = false;
+        })
+        .catch((err) => {
+          alert(err.response.data.message);
+          store.commit('logout');
+          router.push('/login');
+        });
+    },
+    addProduct() {
+      this.isLoading = true;
+      admin
+        .addProduct(this.product)
+        .then((res) => {
+          const data = res.data;
+          alert(data.message);
+          this.getProducts();
+        })
+        .catch((err) => {
+          alert(err.response.data.message);
+          store.commit('logout');
+          router.push('/login');
+        });
+    },
     deleteProduct() {
-      console.log(this.selectedProductId);
-      // admin
-      //   .deleteProduct(id)
-      //   .then((res) => {
-      //     const data = res.data;
-      //     this.products = data.products;
-      //     this.pagination = data.pagination;
-      //   })
-      //   .catch((err) => {
-      //     alert(err.response.data.message);
-      //     store.commit('logout');
-      //     router.push('/login');
-      //   });
+      admin
+        .deleteProduct(this.selectedProductId)
+        .then((res) => {
+          const data = res.data;
+          this.products = data.products;
+          this.pagination = data.pagination;
+          alert(data.message);
+          this.getProducts();
+        })
+        .catch((err) => {
+          alert(err.response.data.message);
+          store.commit('logout');
+          router.push('/login');
+        });
     },
   },
 };

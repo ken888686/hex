@@ -49,12 +49,52 @@
       &copy; 2021~∞ - 六角學院
     </p>
   </div>
+
+  <!-- Modal -->
+  <div
+    id="loginModal"
+    class="modal fade"
+    tabindex="-1"
+    aria-hidden="true"
+    aria-labelledby="loginModalLabel"
+  >
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5
+            id="loginModalLabel"
+            class="modal-title"
+          >
+            Hexschool
+          </h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          />
+        </div>
+        <div class="modal-body">
+          <p>Success!</p>
+        </div>
+        <div class="modal-footer justify-content-center">
+          <button
+            type="button"
+            class="btn btn-primary"
+            @click="loginSuccess"
+          >
+            OK
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 <script>
 import { mapActions } from 'vuex';
+import { Modal } from 'bootstrap';
 import router from '@/router';
 import store from '@/store';
-
 import { auth } from '@/services';
 
 export default {
@@ -63,9 +103,13 @@ export default {
       account: '',
       password: '',
       disabled: false,
+      loginStatus: null,
     };
   },
   mounted() {
+    this.loginStatus = new Modal(document.getElementById('loginModal'));
+    this.loginStatus.toggle();
+    router.push('/');
   },
   methods: {
     ...mapActions([
@@ -76,13 +120,19 @@ export default {
       const account = this.account;
       const password = this.password;
 
-      auth.login(account, password).then((res) => {
-        store.dispatch('login', res.data.token);
-        router.push('/');
-      }).catch((err) => {
-        this.disabled = false;
-        alert(err.response.data.message);
-      });
+      auth
+        .login(account, password)
+        .then((res) => {
+          store.dispatch('login', res.data.token);
+          this.loginStatus.toggle();
+        })
+        .catch((err) => {
+          this.disabled = false;
+          alert(err.response.data.message);
+        });
+    },
+    loginResult(success, message) {
+      router.push('/');
     },
   },
 };
