@@ -88,8 +88,49 @@
       </button>
     </div>
   </nav>
+
+  <!-- Modal -->
+  <div
+    id="logoutModal"
+    class="modal fade"
+    tabindex="-1"
+    aria-hidden="true"
+    aria-labelledby="logoutModalLabel"
+  >
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5
+            id="logoutModalLabel"
+            class="modal-title"
+          >
+            Hexschool
+          </h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          />
+        </div>
+        <div class="modal-body">
+          <p>{{ message }}</p>
+        </div>
+        <div class="modal-footer justify-content-center">
+          <button
+            type="button"
+            class="btn btn-primary"
+            data-bs-dismiss="modal"
+          >
+            OK
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 <script>
+import { Modal } from 'bootstrap';
 import { auth } from '@/services';
 import store from '@/store';
 import router from '@/router';
@@ -100,6 +141,8 @@ export default {
     return {
       logoSize: 25,
       isProcessing: false,
+      message: '',
+      logoutModal: null,
     };
   },
   computed: {
@@ -108,6 +151,7 @@ export default {
     },
   },
   mounted() {
+    this.logoutModal = new Modal(document.getElementById('logoutModal'));
   },
   methods: {
     logout() {
@@ -115,17 +159,23 @@ export default {
       auth
         .logout()
         .then((res) => {
-          alert(res.data.message);
-          store.dispatch('logout');
-          router.push('/');
+          const data = res.data;
+          this.logoutResult(true, data.message);
         })
         .catch((err) => {
-          alert(err.response.data.message);
-          console.dir(err);
+          this.logoutResult(false, err.response.data.message);
         })
         .finally(() => {
           this.isProcessing = false;
         });
+    },
+    logoutResult(success, message) {
+      this.message = message;
+      this.logoutModal.toggle();
+      if (success) {
+        store.dispatch('logout');
+        router.push('/');
+      }
     },
   },
 };

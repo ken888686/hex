@@ -75,13 +75,13 @@
           />
         </div>
         <div class="modal-body">
-          <p>Success!</p>
+          <p>{{ message }}</p>
         </div>
         <div class="modal-footer justify-content-center">
           <button
             type="button"
             class="btn btn-primary"
-            @click="loginSuccess"
+            data-bs-dismiss="modal"
           >
             OK
           </button>
@@ -104,12 +104,11 @@ export default {
       password: '',
       disabled: false,
       loginStatus: null,
+      message: 'Success!',
     };
   },
   mounted() {
     this.loginStatus = new Modal(document.getElementById('loginModal'));
-    this.loginStatus.toggle();
-    router.push('/');
   },
   methods: {
     ...mapActions([
@@ -123,16 +122,25 @@ export default {
       auth
         .login(account, password)
         .then((res) => {
-          store.dispatch('login', res.data.token);
+          const data = res.data;
+          store.dispatch('login', data.token);
           this.loginStatus.toggle();
+          this.loginResult(true, data.message);
         })
         .catch((err) => {
           this.disabled = false;
-          alert(err.response.data.message);
+          this.loginResult(false, err.response.data.message);
         });
     },
     loginResult(success, message) {
-      router.push('/');
+      this.message = message;
+
+      if (success) {
+        router.push('/');
+      } else {
+        this.password = '';
+        this.loginStatus.toggle();
+      }
     },
   },
 };
