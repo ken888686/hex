@@ -59,7 +59,7 @@
               <button
                 type="button"
                 class="btn btn-outline-danger btn-sm"
-                @click="setProductId(item.id)"
+                @click="setProductId(item.id,'del')"
               >
                 刪除
               </button>
@@ -69,7 +69,7 @@
       </tbody>
     </table>
   </div>
-  <!-- Modal -->
+  <!-- 新增產品 Modal -->
   <div
     id="productModal"
     ref="productModal"
@@ -288,6 +288,7 @@
       </div>
     </div>
   </div>
+  <!-- 刪除產品 Modal -->
   <div
     id="delProductModal"
     ref="delProductModal"
@@ -329,9 +330,53 @@
           <button
             type="button"
             class="btn btn-danger"
+            data-bs-dismiss="modal"
             @click="deleteProduct"
           >
             確認刪除
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 結果 Modal -->
+  <div
+    id="resultProductModal"
+    ref="resultProductModal"
+    class="modal fade"
+    tabindex="-1"
+    aria-labelledby="resultProductModalLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog">
+      <div class="modal-content border-0">
+        <div class="modal-header bg-success text-white">
+          <h5
+            id="resultProductModalLabel"
+            class="modal-title"
+          >
+            <span>結果</span>
+          </h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          />
+        </div>
+        <div class="modal-body">
+          {{ message }}
+        </div>
+        <div class="modal-footer">
+          <button
+            v-if="success"
+            type="button"
+            class="btn"
+            :class="[success?'btn-outline-seccess':'btn-outline-danger']"
+            data-bs-dismiss="modal"
+          >
+            完成
           </button>
         </div>
       </div>
@@ -370,6 +415,9 @@ export default {
       isLoading: true,
       productModal: null,
       delProductModal: null,
+      resultProductModal: null,
+      message: '',
+      success: false,
     };
   },
   watch: {
@@ -393,6 +441,11 @@ export default {
       backdrop: 'static',
     });
 
+    this.resultProductModal = new Modal(document.getElementById('resultProductModal'), {
+      keyboard: false,
+      backdrop: 'static',
+    });
+
     auth
       .check()
       .then((res) => {
@@ -411,8 +464,17 @@ export default {
     test() {
       this.productModal.show();
     },
-    setProductId(id) {
+    setProductId(id, action) {
       this.selectedProductId = id;
+      switch (action) {
+        case 'del':
+          this.delProductModal.show();
+          break;
+        case 'add':
+          this.productModal.show();
+          break;
+        default:
+      }
     },
     getProducts() {
       this.isLoading = true;
@@ -452,11 +514,14 @@ export default {
           const data = res.data;
           this.products = data.products;
           this.pagination = data.pagination;
-          alert(data.message);
+          this.message = data.message;
+          this.success = data.success;
           this.getProducts();
         })
         .catch((err) => {
-          alert(err.response.data.message);
+          const data = err.response.data;
+          this.message = data.message;
+          this.success = data.success;
           store.commit('logout');
           router.push('/login');
         });
