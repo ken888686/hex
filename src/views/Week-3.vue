@@ -575,7 +575,6 @@ export default {
         });
     },
     updateProduct() {
-      console.log(this.product);
       this.isLoading = true;
       admin
         .updateProduct(this.selectedProductId, this.product)
