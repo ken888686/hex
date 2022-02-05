@@ -59,7 +59,7 @@
               <button
                 type="button"
                 class="btn btn-outline-danger btn-sm"
-                @click="setProductId(item.id)"
+                @click="setProductId(item.id,'del')"
               >
                 刪除
               </button>
@@ -69,7 +69,8 @@
       </tbody>
     </table>
   </div>
-  <!-- Modal -->
+
+  <!-- 新增產品 Modal -->
   <div
     id="productModal"
     ref="productModal"
@@ -102,7 +103,9 @@
                   <label
                     for="imageUrl"
                     class="form-label"
-                  >輸入主圖網址</label>
+                  >
+                    輸入主圖網址
+                  </label>
                   <input
                     v-model="imageUrl"
                     type="text"
@@ -124,18 +127,25 @@
                   <label
                     for="imageUrl"
                     class="form-label"
-                  >輸入其他圖片網址</label>
-                  <input
-                    v-model="product.imageUrl"
-                    type="text"
-                    class="form-control"
-                    placeholder="輸入其他圖片網址"
                   >
-                  <img
-                    class="img-fluid"
-                    src=""
-                    alt=""
+                    輸入其他圖片網址
+                  </label>
+                  <div
+                    v-for="(url,index) in product.imagesUrl"
+                    :key="index"
                   >
+                    <input
+                      v-model="product.imageUrl"
+                      type="text"
+                      class="form-control"
+                      placeholder="輸入其他圖片網址"
+                    >
+                    <img
+                      class="img-fluid"
+                      :src="url"
+                      :alt="`pic-${index}`"
+                    >
+                  </div>
                   <div v-if="product.imagesUrl.length<=0">
                     <button class="btn btn-outline-primary btn-sm d-block w-100">
                       新增圖片
@@ -154,7 +164,9 @@
                 <label
                   for="title"
                   class="form-label"
-                >標題</label>
+                >
+                  標題
+                </label>
                 <input
                   id="title"
                   v-model="product.title"
@@ -163,13 +175,14 @@
                   placeholder="請輸入標題"
                 >
               </div>
-
               <div class="row">
                 <div class="mb-3 col-md-6">
                   <label
                     for="category"
                     class="form-label"
-                  >分類</label>
+                  >
+                    分類
+                  </label>
                   <input
                     id="category"
                     v-model="product.category"
@@ -182,7 +195,9 @@
                   <label
                     for="price"
                     class="form-label"
-                  >單位</label>
+                  >
+                    單位
+                  </label>
                   <input
                     id="unit"
                     v-model="product.unit"
@@ -198,7 +213,9 @@
                   <label
                     for="origin_price"
                     class="form-label"
-                  >原價</label>
+                  >
+                    原價
+                  </label>
                   <input
                     id="origin_price"
                     v-model="product.origin_price"
@@ -212,7 +229,9 @@
                   <label
                     for="price"
                     class="form-label"
-                  >售價</label>
+                  >
+                    售價
+                  </label>
                   <input
                     id="price"
                     v-model="product.price"
@@ -229,7 +248,9 @@
                 <label
                   for="description"
                   class="form-label"
-                >產品描述</label>
+                >
+                  產品描述
+                </label>
                 <textarea
                   id="description"
                   v-model="product.description"
@@ -242,7 +263,9 @@
                 <label
                   for="content"
                   class="form-label"
-                >說明內容</label>
+                >
+                  說明內容
+                </label>
                 <textarea
                   id="description"
                   v-model="product.content"
@@ -262,7 +285,9 @@
                   <label
                     class="form-check-label"
                     for="is_enabled"
-                  >是否啟用</label>
+                  >
+                    是否啟用
+                  </label>
                 </div>
               </div>
             </div>
@@ -288,6 +313,8 @@
       </div>
     </div>
   </div>
+
+  <!-- 刪除產品 Modal -->
   <div
     id="delProductModal"
     ref="delProductModal"
@@ -329,9 +356,53 @@
           <button
             type="button"
             class="btn btn-danger"
+            data-bs-dismiss="modal"
             @click="deleteProduct"
           >
             確認刪除
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 結果 Modal -->
+  <div
+    id="resultProductModal"
+    ref="resultProductModal"
+    class="modal fade"
+    tabindex="-1"
+    aria-labelledby="resultProductModalLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog">
+      <div class="modal-content border-0">
+        <div class="modal-header bg-success text-white">
+          <h5
+            id="resultProductModalLabel"
+            class="modal-title"
+          >
+            <span>結果</span>
+          </h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          />
+        </div>
+        <div class="modal-body">
+          {{ message }}
+        </div>
+        <div class="modal-footer">
+          <button
+            v-if="success"
+            type="button"
+            class="btn"
+            :class="[success?'btn-outline-seccess':'btn-outline-danger']"
+            data-bs-dismiss="modal"
+          >
+            完成
           </button>
         </div>
       </div>
@@ -366,16 +437,19 @@ export default {
       products: [],
       pagination: {},
       selectedProductId: '',
-      imageUrl: '',
+      imageUrl: 'https://images.unsplash.com/photo-1643444686100-87284f04cbab?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
       isLoading: true,
       productModal: null,
       delProductModal: null,
+      resultProductModal: null,
+      message: '',
+      success: false,
     };
   },
   watch: {
     imageUrl: debounce(function (imageUrl) {
       this.product.imageUrl = imageUrl;
-    }, 2000),
+    }, 1000),
   },
   mounted() {
     if (!store.state.isLogin) {
@@ -393,6 +467,11 @@ export default {
       backdrop: 'static',
     });
 
+    this.resultProductModal = new Modal(document.getElementById('resultProductModal'), {
+      keyboard: false,
+      backdrop: 'static',
+    });
+
     auth
       .check()
       .then((res) => {
@@ -402,7 +481,9 @@ export default {
         }
       })
       .catch((err) => {
-        alert(err.response.data.message);
+        const data = err.response.data;
+        this.message = data.message;
+        this.success = data.success;
         store.commit('logout');
         router.push('/login');
       });
@@ -411,8 +492,17 @@ export default {
     test() {
       this.productModal.show();
     },
-    setProductId(id) {
+    setProductId(id, action) {
       this.selectedProductId = id;
+      switch (action) {
+        case 'del':
+          this.delProductModal.show();
+          break;
+        case 'add':
+          this.productModal.show();
+          break;
+        default:
+      }
     },
     getProducts() {
       this.isLoading = true;
@@ -425,7 +515,9 @@ export default {
           this.isLoading = false;
         })
         .catch((err) => {
-          alert(err.response.data.message);
+          const data = err.response.data;
+          this.message = data.message;
+          this.success = data.success;
           store.commit('logout');
           router.push('/login');
         });
@@ -436,13 +528,17 @@ export default {
         .addProduct(this.product)
         .then((res) => {
           const data = res.data;
-          alert(data.message);
+          this.message = data.message;
+          this.success = data.success;
           this.getProducts();
         })
         .catch((err) => {
-          alert(err.response.data.message);
+          const data = err.response.data;
+          this.message = data.message;
+          this.success = data.success;
           store.commit('logout');
           router.push('/login');
+          this.getProducts();
         });
     },
     deleteProduct() {
@@ -452,11 +548,14 @@ export default {
           const data = res.data;
           this.products = data.products;
           this.pagination = data.pagination;
-          alert(data.message);
+          this.message = data.message;
+          this.success = data.success;
           this.getProducts();
         })
         .catch((err) => {
-          alert(err.response.data.message);
+          const data = err.response.data;
+          this.message = data.message;
+          this.success = data.success;
           store.commit('logout');
           router.push('/login');
         });
