@@ -4,7 +4,7 @@
       <button
         class="btn btn-primary"
         :disabled="isLoading"
-        @click="test"
+        @click="setProductId('', 'add')"
       >
         建立新的產品
       </button>
@@ -53,6 +53,7 @@
               <button
                 type="button"
                 class="btn btn-outline-primary btn-sm"
+                @click="setProductId(item.id,'edit')"
               >
                 編輯
               </button>
@@ -107,7 +108,7 @@
                     輸入主圖網址
                   </label>
                   <input
-                    v-model="imageUrl"
+                    v-model="product.imageUrl"
                     type="text"
                     class="form-control"
                     placeholder="輸入主圖網址"
@@ -120,39 +121,51 @@
                   >
                 </div>
                 <div
-                  v-if="product.imageUrl!==''"
+                  v-if="Array.isArray(product.imagesUrl)"
                   class="mb-3"
                 >
                   <hr>
-                  <label
-                    for="imageUrl"
-                    class="form-label"
-                  >
-                    輸入其他圖片網址
-                  </label>
-                  <div
-                    v-for="(url,index) in product.imagesUrl"
-                    :key="index"
-                  >
-                    <input
-                      v-model="product.imageUrl"
-                      type="text"
-                      class="form-control"
-                      placeholder="輸入其他圖片網址"
+                  <div class="mb-3">
+                    <label
+                      for="imageUrl"
+                      class="form-label"
                     >
-                    <img
-                      class="img-fluid"
-                      :src="url"
-                      :alt="`pic-${index}`"
+                      輸入其他圖片網址
+                    </label>
+                    <div
+                      v-for="(img,index) in product.imagesUrl"
+                      :key="'pic-' + index"
+                      class="mb-3"
                     >
+                      <input
+                        v-model="product.imagesUrl[index]"
+                        type="text"
+                        class="form-control"
+                        placeholder="輸入其他圖片網址"
+                      >
+                      <img
+                        v-if="product.imagesUrl[index]!==''"
+                        class="img-fluid mt-1"
+                        :src="product.imagesUrl[index]"
+                        alt="other pic"
+                      >
+                    </div>
                   </div>
-                  <div v-if="product.imagesUrl.length<=0">
-                    <button class="btn btn-outline-primary btn-sm d-block w-100">
+                  <div v-if="!product.imagesUrl.length || product.imagesUrl[product.imagesUrl.length-1]">
+                    <button
+                      type="button"
+                      class="btn btn-primary btn-sm d-block w-100"
+                      @click="product.imagesUrl.push('')"
+                    >
                       新增圖片
                     </button>
                   </div>
                   <div v-else>
-                    <button class="btn btn-outline-danger btn-sm d-block w-100">
+                    <button
+                      type="button"
+                      class="btn btn-outline-danger btn-sm d-block w-100"
+                      @click="product.imagesUrl.pop()"
+                    >
                       刪除圖片
                     </button>
                   </div>
@@ -278,6 +291,7 @@
                 <div class="form-check">
                   <input
                     id="is_enabled"
+                    v-model="product.is_enabled"
                     class="form-check-input"
                     type="checkbox"
                     :checked="product.is_enabled"
@@ -305,7 +319,7 @@
             type="button"
             class="btn btn-primary"
             data-bs-dismiss="modal"
-            @click="addProduct"
+            @click="action === 'add' ? addProduct() : updateProduct()"
           >
             確認
           </button>
@@ -410,8 +424,8 @@
   </div>
   <!-- Modal -->
 </template>
+
 <script>
-import { debounce } from 'lodash';
 import { Modal } from 'bootstrap';
 import { auth, admin } from '@/services';
 import router from '@/router';
@@ -437,7 +451,7 @@ export default {
       products: [],
       pagination: {},
       selectedProductId: '',
-      imageUrl: 'https://images.unsplash.com/photo-1643444686100-87284f04cbab?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
+      action: '',
       isLoading: true,
       productModal: null,
       delProductModal: null,
@@ -447,9 +461,29 @@ export default {
     };
   },
   watch: {
-    imageUrl: debounce(function (imageUrl) {
-      this.product.imageUrl = imageUrl;
-    }, 1000),
+    selectedProductId() {
+      if (this.selectedProductId === '') {
+        this.product = {
+          category: '',
+          content: '',
+          description: '',
+          id: '',
+          imageUrl: '',
+          imagesUrl: [],
+          is_enabled: 0,
+          origin_price: 0,
+          price: 0,
+          title: '',
+          unit: '',
+          num: 1,
+        };
+        return;
+      }
+
+      this.product = this.products.find(
+        (product) => product.id === this.selectedProductId,
+      );
+    },
   },
   mounted() {
     if (!store.state.isLogin) {
@@ -489,17 +523,16 @@ export default {
       });
   },
   methods: {
-    test() {
-      this.productModal.show();
-    },
     setProductId(id, action) {
       this.selectedProductId = id;
+      this.action = action;
       switch (action) {
+        case 'add':
+        case 'edit':
+          this.productModal.show();
+          break;
         case 'del':
           this.delProductModal.show();
-          break;
-        case 'add':
-          this.productModal.show();
           break;
         default:
       }
@@ -541,7 +574,29 @@ export default {
           this.getProducts();
         });
     },
+    updateProduct() {
+      console.log(this.product);
+      this.isLoading = true;
+      admin
+        .updateProduct(this.selectedProductId, this.product)
+        .then((res) => {
+          const data = res.data;
+          this.products = data.products;
+          this.pagination = data.pagination;
+          this.message = data.message;
+          this.success = data.success;
+          this.getProducts();
+        })
+        .catch((err) => {
+          const data = err.response.data;
+          this.message = data.message;
+          this.success = data.success;
+          store.commit('logout');
+          router.push('/login');
+        });
+    },
     deleteProduct() {
+      this.isLoading = true;
       admin
         .deleteProduct(this.selectedProductId)
         .then((res) => {
