@@ -125,17 +125,22 @@
                     for="imageUrl"
                     class="form-label"
                   >輸入其他圖片網址</label>
-                  <input
-                    v-model="product.imageUrl"
-                    type="text"
-                    class="form-control"
-                    placeholder="輸入其他圖片網址"
+                  <div
+                    v-for="(url,index) in product.imagesUrl"
+                    :key="index"
                   >
-                  <img
-                    class="img-fluid"
-                    src=""
-                    alt=""
-                  >
+                    <input
+                      v-model="product.imageUrl"
+                      type="text"
+                      class="form-control"
+                      placeholder="輸入其他圖片網址"
+                    >
+                    <img
+                      class="img-fluid"
+                      :src="url"
+                      :alt="`pic-${index}`"
+                    >
+                  </div>
                   <div v-if="product.imagesUrl.length<=0">
                     <button class="btn btn-outline-primary btn-sm d-block w-100">
                       新增圖片
@@ -163,7 +168,6 @@
                   placeholder="請輸入標題"
                 >
               </div>
-
               <div class="row">
                 <div class="mb-3 col-md-6">
                   <label
@@ -411,7 +415,7 @@ export default {
       products: [],
       pagination: {},
       selectedProductId: '',
-      imageUrl: '',
+      imageUrl: 'https://images.unsplash.com/photo-1643444686100-87284f04cbab?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
       isLoading: true,
       productModal: null,
       delProductModal: null,
@@ -423,7 +427,7 @@ export default {
   watch: {
     imageUrl: debounce(function (imageUrl) {
       this.product.imageUrl = imageUrl;
-    }, 2000),
+    }, 1000),
   },
   mounted() {
     if (!store.state.isLogin) {
@@ -455,7 +459,9 @@ export default {
         }
       })
       .catch((err) => {
-        alert(err.response.data.message);
+        const data = err.response.data;
+        this.message = data.message;
+        this.success = data.success;
         store.commit('logout');
         router.push('/login');
       });
@@ -487,7 +493,9 @@ export default {
           this.isLoading = false;
         })
         .catch((err) => {
-          alert(err.response.data.message);
+          const data = err.response.data;
+          this.message = data.message;
+          this.success = data.success;
           store.commit('logout');
           router.push('/login');
         });
@@ -498,13 +506,18 @@ export default {
         .addProduct(this.product)
         .then((res) => {
           const data = res.data;
-          alert(data.message);
+          this.message = data.message;
+          this.success = data.success;
           this.getProducts();
         })
         .catch((err) => {
-          alert(err.response.data.message);
-          store.commit('logout');
-          router.push('/login');
+          const data = err.response.data;
+          // this.message = data.message;
+          // this.success = data.success;
+          // store.commit('logout');
+          // router.push('/login');
+          console.dir(data);
+          this.getProducts();
         });
     },
     deleteProduct() {

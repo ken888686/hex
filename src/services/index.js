@@ -103,7 +103,13 @@ const admin = {
   addProduct(data) {
     return new Promise((resolve, reject) => {
       axios
-        .post(`${url}/v2/api/${apiPath}`, data, config)
+        .post(
+          `${url}/v2/api/${apiPath}/admin/product`,
+          {
+            data,
+          },
+          config,
+        )
         .then((res) => {
           resolve(res);
         })
