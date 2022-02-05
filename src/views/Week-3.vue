@@ -291,6 +291,7 @@
                 <div class="form-check">
                   <input
                     id="is_enabled"
+                    v-model="product.is_enabled"
                     class="form-check-input"
                     type="checkbox"
                     :checked="product.is_enabled"
@@ -318,7 +319,7 @@
             type="button"
             class="btn btn-primary"
             data-bs-dismiss="modal"
-            @click="addProduct"
+            @click="action === 'add' ? addProduct() : updateProduct()"
           >
             確認
           </button>
@@ -425,7 +426,6 @@
 </template>
 
 <script>
-import { debounce } from 'lodash';
 import { Modal } from 'bootstrap';
 import { auth, admin } from '@/services';
 import router from '@/router';
@@ -451,6 +451,7 @@ export default {
       products: [],
       pagination: {},
       selectedProductId: '',
+      action: '',
       isLoading: true,
       productModal: null,
       delProductModal: null,
@@ -460,13 +461,6 @@ export default {
     };
   },
   watch: {
-    // 'product.imageUrl': debounce(function (imageUrl) {
-    //   this.tempProduct.imageUrl = imageUrl;
-    // }, 1000),
-    // 'product.imagesUrl': debounce((curr, prev) => {
-    //   console.log(`curr: ${curr}`);
-    //   console.log(`prev: ${prev}`);
-    // }, 1000),
     selectedProductId() {
       if (this.selectedProductId === '') {
         this.product = {
@@ -531,6 +525,7 @@ export default {
   methods: {
     setProductId(id, action) {
       this.selectedProductId = id;
+      this.action = action;
       switch (action) {
         case 'add':
         case 'edit':
@@ -579,7 +574,29 @@ export default {
           this.getProducts();
         });
     },
+    updateProduct() {
+      console.log(this.product);
+      this.isLoading = true;
+      admin
+        .updateProduct(this.selectedProductId, this.product)
+        .then((res) => {
+          const data = res.data;
+          this.products = data.products;
+          this.pagination = data.pagination;
+          this.message = data.message;
+          this.success = data.success;
+          this.getProducts();
+        })
+        .catch((err) => {
+          const data = err.response.data;
+          this.message = data.message;
+          this.success = data.success;
+          store.commit('logout');
+          router.push('/login');
+        });
+    },
     deleteProduct() {
+      this.isLoading = true;
       admin
         .deleteProduct(this.selectedProductId)
         .then((res) => {
