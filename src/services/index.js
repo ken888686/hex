@@ -103,13 +103,7 @@ const admin = {
   addProduct(data) {
     return new Promise((resolve, reject) => {
       axios
-        .post(
-          `${url}/v2/api/${apiPath}/admin/product`,
-          {
-            data,
-          },
-          config,
-        )
+        .post(`${url}/v2/api/${apiPath}/admin/product`, { data }, config)
         .then((res) => {
           resolve(res);
         })
@@ -146,7 +140,7 @@ const admin = {
   editProduct(id, data) {
     return new Promise((resolve, reject) => {
       axios
-        .put(`${url}/v2/api/${apiPath}/admin/product/${id}`, data, config)
+        .put(`${url}/v2/api/${apiPath}/admin/product/${id}`, { data }, config)
         .then((res) => {
           resolve(res);
         })

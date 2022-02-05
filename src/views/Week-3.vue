@@ -69,6 +69,7 @@
       </tbody>
     </table>
   </div>
+
   <!-- 新增產品 Modal -->
   <div
     id="productModal"
@@ -102,7 +103,9 @@
                   <label
                     for="imageUrl"
                     class="form-label"
-                  >輸入主圖網址</label>
+                  >
+                    輸入主圖網址
+                  </label>
                   <input
                     v-model="imageUrl"
                     type="text"
@@ -124,7 +127,9 @@
                   <label
                     for="imageUrl"
                     class="form-label"
-                  >輸入其他圖片網址</label>
+                  >
+                    輸入其他圖片網址
+                  </label>
                   <div
                     v-for="(url,index) in product.imagesUrl"
                     :key="index"
@@ -159,7 +164,9 @@
                 <label
                   for="title"
                   class="form-label"
-                >標題</label>
+                >
+                  標題
+                </label>
                 <input
                   id="title"
                   v-model="product.title"
@@ -173,7 +180,9 @@
                   <label
                     for="category"
                     class="form-label"
-                  >分類</label>
+                  >
+                    分類
+                  </label>
                   <input
                     id="category"
                     v-model="product.category"
@@ -186,7 +195,9 @@
                   <label
                     for="price"
                     class="form-label"
-                  >單位</label>
+                  >
+                    單位
+                  </label>
                   <input
                     id="unit"
                     v-model="product.unit"
@@ -202,7 +213,9 @@
                   <label
                     for="origin_price"
                     class="form-label"
-                  >原價</label>
+                  >
+                    原價
+                  </label>
                   <input
                     id="origin_price"
                     v-model="product.origin_price"
@@ -216,7 +229,9 @@
                   <label
                     for="price"
                     class="form-label"
-                  >售價</label>
+                  >
+                    售價
+                  </label>
                   <input
                     id="price"
                     v-model="product.price"
@@ -233,7 +248,9 @@
                 <label
                   for="description"
                   class="form-label"
-                >產品描述</label>
+                >
+                  產品描述
+                </label>
                 <textarea
                   id="description"
                   v-model="product.description"
@@ -246,7 +263,9 @@
                 <label
                   for="content"
                   class="form-label"
-                >說明內容</label>
+                >
+                  說明內容
+                </label>
                 <textarea
                   id="description"
                   v-model="product.content"
@@ -266,7 +285,9 @@
                   <label
                     class="form-check-label"
                     for="is_enabled"
-                  >是否啟用</label>
+                  >
+                    是否啟用
+                  </label>
                 </div>
               </div>
             </div>
@@ -292,6 +313,7 @@
       </div>
     </div>
   </div>
+
   <!-- 刪除產品 Modal -->
   <div
     id="delProductModal"
@@ -512,11 +534,10 @@ export default {
         })
         .catch((err) => {
           const data = err.response.data;
-          // this.message = data.message;
-          // this.success = data.success;
-          // store.commit('logout');
-          // router.push('/login');
-          console.dir(data);
+          this.message = data.message;
+          this.success = data.success;
+          store.commit('logout');
+          router.push('/login');
           this.getProducts();
         });
     },
